@@ -1,0 +1,24 @@
+name: 暦カレンダーを更新
+on:
+  schedule:
+    - cron: "0 18 1 * *"   # 毎月2日 3:00 JST
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python koyomi.py - - docs
+      - name: 変更があればコミット
+        run: |
+          git config user.name "koyomi-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add docs/*.ics
+          git diff --cached --quiet || git commit -m "暦カレンダーを自動更新 $(date +%Y-%m)"
+          git push
