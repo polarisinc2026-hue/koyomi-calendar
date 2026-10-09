@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-日本の暦注カレンダー生成スクリプト（Googleカレンダー取り込み用 .ics）
+おかぴー暦：日本の暦注カレンダー生成スクリプト（Googleカレンダー取り込み用 .ics）
 - 旧暦（六曜・不成就日）と二十四節気（節月：一粒万倍日・十二直など）を天文計算で求める
 - 使い方: python3 koyomi.py [開始日] [終了日] [出力先]
   （引数なしなら「先月1日〜2年後の年末」を作る。GitHub Actionsが毎月これを実行）
@@ -143,8 +143,8 @@ KICHI_INFO = {
 }
 KYO_INFO = {
  "不成就日":"何事も成就しない日。始めることは避ける",
- "受死日":"暦の上で最悪の凶日（黒日）。葬儀以外は避ける",
- "十死日":"万事に凶。特に始めること・旅立ちを避ける",
+ "受死日":"暦の上でいちばん注意な日。大事なことは別の日に",
+ "十死日":"何かとうまくいきにくい日。始めること・遠出は控えめに",
  "三隣亡":"建築の大凶日（棟上げ・工事は避ける）",
 }
 
@@ -244,11 +244,11 @@ def fold(line):
     return "\r\n".join(out)
 
 def ics(name, desc, events):
-    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Polaris//Koyomi//JA", "CALSCALE:GREGORIAN",
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Okapi//Koyomi//JA", "CALSCALE:GREGORIAN",
              "METHOD:PUBLISH", f"X-WR-CALNAME:{esc(name)}", f"X-WR-CALDESC:{esc(desc)}", "X-WR-TIMEZONE:Asia/Tokyo"]
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     for uid, date, title, body in events:
-        lines += ["BEGIN:VEVENT", f"UID:{uid}@koyomi.polaris", f"DTSTAMP:{stamp}",
+        lines += ["BEGIN:VEVENT", f"UID:{uid}@koyomi.okapi", f"DTSTAMP:{stamp}",
                   f"DTSTART;VALUE=DATE:{date:%Y%m%d}", f"DTEND;VALUE=DATE:{date + dt.timedelta(days=1):%Y%m%d}",
                   f"SUMMARY:{esc(title)}", f"DESCRIPTION:{esc(body)}", "TRANSP:TRANSPARENT", "END:VEVENT"]
     lines.append("END:VCALENDAR")
@@ -256,7 +256,8 @@ def ics(name, desc, events):
 
 KICHI_MARK = {"天赦日":"💎","一粒万倍日":"🌾","天恩日":"🌈","大明日":"☀️","母倉日":"🤱","寅の日":"🐯",
               "巳の日":"🐍","己巳の日":"🐍✨","甲子の日":"🔰","天一天上":"🧭"}
-KYO_MARK = {"不成就日":"🚫","受死日":"⚫","十死日":"💀","三隣亡":"🏚"}
+KYO_MARK = {"不成就日":"🙈","受死日":"⚠️","十死日":"🤦","三隣亡":"🚧"}
+ACHA = ["不成就日", "受死日", "十死日"]   # あちゃー日に出す凶日（三隣亡は建築だけの話なので毎日の詳細のみ）
 MAIN_KICHI = ["天赦日","一粒万倍日","寅の日","己巳の日","巳の日","甲子の日"]
 
 def generate(start, end, outdir="."):
@@ -290,8 +291,14 @@ def generate(start, end, outdir="."):
         inf["ms"], inf["ss"] = ms, ss
         lm, leap, ld = inf["lunar"]
         cmean, cgood, cbad = CHOKU_INFO[inf["choku"]]
-        title = f"{inf['rokuyo']}・{inf['choku']}　⛰{inf['m']} 🌱{inf['s']}"
-        if inf["sekki"]: title += f"　〈{inf['sekki']}〉"
+        acha = [x for x in ACHA if x in inf["kyo"]]
+        icons = ""
+        if "天赦日" in inf["kichi"] and "一粒万倍日" in inf["kichi"]: icons += "👑"
+        if inf["s"] == "◎": icons += "🌱"
+        if inf["m"] == "◎": icons += "⛰"
+        if acha: icons += KYO_MARK[acha[0]]
+        title = inf["rokuyo"] + (f" {icons}" if icons else "")
+        if inf["sekki"]: title += f"　{inf['sekki']}"
         body = [
             f"旧暦 {'閏' if leap else ''}{lm}月{ld}日／{inf['kanshi']}の日" + ("／土用" if inf["doyo"] else ""),
             "",
@@ -306,19 +313,19 @@ def generate(start, end, outdir="."):
             body += ["", "■凶日"] + [f"　{KYO_MARK[x]}{x} … {KYO_INFO[x]}" for x in inf["kyo"]]
         body += ["", f"⛰登山 {inf['m']}（{ms:+d}）: " + ("、".join(mwhy) or "特記なし"),
                  f"🌱新しいこと {inf['s']}（{ss:+d}）: " + ("、".join(swhy) or "特記なし"),
-                 "", "◎=おすすめ ○=良い △=普通 ×=避けたい"]
+                 "", "🌱=はじめ日 ⛰=山日和 🙈⚠️🤦=あちゃー日 👑=最強開運日",
+                 "◎=おすすめ ○=良い △=普通 ×=避けたい（おかぴーオリジナル判定）"]
         body = "\n".join(body)
         daily.append((f"d{d:%Y%m%d}", d, title, body))
 
-        main = [x for x in MAIN_KICHI if x in inf["kichi"]]
-        if main:
-            power = sum(1 for x in main if x in ("天赦日", "一粒万倍日")) + (inf["rokuyo"] == "大安")
-            head = "👑最強開運日 " if ("天赦日" in main and "一粒万倍日" in main) else ("✨" if power >= 2 else "")
-            t = head + " ".join(KICHI_MARK[x] + x for x in main[:3])
-            if inf["kyo"] and "不成就日" in inf["kyo"]: t += "（🚫不成就日と重なり）"
-            good.append((f"g{d:%Y%m%d}", d, t, body))
-        if inf["kyo"]:
-            bad.append((f"b{d:%Y%m%d}", d, " ".join(KYO_MARK[x] + x for x in inf["kyo"]), body))
+        big = [x for x in ("天赦日", "一粒万倍日") if x in inf["kichi"]]
+        if inf["s"] == "◎" or (big and not acha):
+            why = [KICHI_MARK[x] + x for x in MAIN_KICHI if x in inf["kichi"]][:2]
+            if inf["rokuyo"] == "大安": why.append("大安")
+            head = "👑最強開運日" if len(big) == 2 else "🌱はじめ日"
+            good.append((f"g{d:%Y%m%d}", d, head + (f"（{'・'.join(why)}）" if why else ""), body))
+        if acha:
+            bad.append((f"b{d:%Y%m%d}", d, "あちゃー日 " + " ".join(KYO_MARK[x] + x for x in acha), body))
 
     # 登山カレンダー：◎の日すべて＋各月の「週末・祝日ベスト」
     by_month = {}
@@ -329,20 +336,20 @@ def generate(start, end, outdir="."):
             if inf["m"] == "◎":
                 d = inf["date"]
                 off = d.weekday() >= 5 or inf["holiday"]
-                mount.append((f"m{d:%Y%m%d}", d, f"⛰登山◎{'（休日）' if off else ''}", daily[infos.index(inf)][3]))
+                mount.append((f"m{d:%Y%m%d}", d, f"⛰山日和{'（休日）' if off else ''}", daily[infos.index(inf)][3]))
         offs = [x for x in lst if x["date"].weekday() >= 5 or x["holiday"]]
         if offs:
             best = max(offs, key=lambda x: (x["ms"], x["ss"]))
             if best["m"] != "◎" and best["ms"] >= 0:
                 d = best["date"]
-                mount.append((f"m{d:%Y%m%d}", d, f"⛰今月の休日ベスト（{best['m']}）", daily[infos.index(best)][3]))
+                mount.append((f"m{d:%Y%m%d}", d, f"⛰今月の休日の山日和（{best['m']}）", daily[infos.index(best)][3]))
     mount.sort(key=lambda e: e[1])
 
     files = {
-        "koyomi-daily.ics": ("暦（毎日）", "六曜・十二直・登山/新しいことの向き不向き", daily),
-        "kichijitsu.ics": ("吉日", "天赦日・一粒万倍日・寅の日・巳の日など", good),
-        "kyojitsu.ics": ("凶日", "不成就日・受死日・十死日・三隣亡", bad),
-        "tozan.ics": ("登山日和", "暦の上で登山に向く日と各月の休日ベスト", mount),
+        "koyomi-daily.ics": ("おかぴー暦", "毎日の六曜と 🌱はじめ日 ⛰山日和 🙈あちゃー日 のしるし", daily),
+        "kichijitsu.ics": ("おかぴー はじめ日", "新しいことを始めるのにいい日（天赦日・一粒万倍日など）", good),
+        "kyojitsu.ics": ("おかぴー あちゃー日", "気をつける日（不成就日・受死日・十死日）", bad),
+        "tozan.ics": ("おかぴー 山日和", "暦の上で山に行くのにいい日と、毎月の休日のおすすめ", mount),
     }
     for fn, (name, desc, ev) in files.items():
         with open(f"{outdir}/{fn}", "w", encoding="utf-8", newline="") as f:

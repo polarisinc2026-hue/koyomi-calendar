@@ -1,12 +1,94 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>暦カレンダー</title>
-<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 16px;line-height:1.7;color:#222;background:#fff}code{background:#f3f3f3;padding:2px 6px;border-radius:4px;word-break:break-all}li{margin:.6rem 0}</style></head><body>
-<h1>暦カレンダー</h1>
-<p>Googleカレンダー（ブラウザ版）の「他のカレンダー」の＋から「URLで追加」を選び、下のURLを1つずつ貼り付けてください。毎月自動で更新されます。</p>
-<ul>
-<li>暦（毎日）六曜・十二直・登山/新しいことの◎○△×<br><code id="u1"></code></li>
-<li>吉日 天赦日・一粒万倍日・寅の日・巳の日など<br><code id="u2"></code></li>
-<li>凶日 不成就日・受死日・十死日・三隣亡<br><code id="u3"></code></li>
-<li>登山日和 ◎の日と各月の休日ベスト<br><code id="u4"></code></li>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>おかぴー暦</title>
+<meta name="description" content="はじめ日・山日和・あちゃー日がひと目でわかる、Googleカレンダー／iPhoneカレンダー用の無料の暦">
+<style>
+:root{--bg:#fffaf3;--card:#fff;--ink:#2b2622;--sub:#7a6f66;--line:#efe4d6;--accent:#e9762b;--accent-ink:#fff;--btn2:#f3ece3;--btn2-ink:#2b2622}
+@media (prefers-color-scheme:dark){:root{--bg:#1d1a17;--card:#27231f;--ink:#f3ece3;--sub:#b9ad9f;--line:#3a342e;--btn2:#3a342e;--btn2-ink:#f3ece3}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;line-height:1.7}
+main{max-width:560px;margin:0 auto;padding:32px 16px 48px}
+h1{font-size:30px;margin:0 0 4px;letter-spacing:.04em}
+.lead{color:var(--sub);margin:0 0 24px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 28px;padding:0;list-style:none}
+.legend li{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;margin:0 0 14px}
+.card h2{font-size:19px;margin:0 0 2px}
+.card p{margin:0 0 12px;color:var(--sub);font-size:14px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+.btns a{flex:1 1 140px;text-align:center;text-decoration:none;border-radius:10px;padding:10px 12px;font-size:15px;font-weight:600}
+.g{background:var(--accent);color:var(--accent-ink)}
+.i{background:var(--btn2);color:var(--btn2-ink)}
+details{margin-top:28px;color:var(--sub);font-size:14px}
+summary{cursor:pointer;color:var(--ink)}
+code{word-break:break-all;font-size:12px}
+footer{margin-top:32px;color:var(--sub);font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<h1>おかぴー暦</h1>
+<p class="lead">「いつ始める？」「いつ山行く？」「この日だいじょうぶ？」が、いつものカレンダーでひと目でわかる無料の暦です。ボタンを押すだけで登録できます。</p>
+
+<ul class="legend">
+<li>🌱 はじめ日</li><li>⛰ 山日和</li><li>🙈 あちゃー日</li><li>👑 最強開運日</li>
 </ul>
-<script>const b=location.href.replace(/index\.html$/,'').replace(/\/?$/,'/');[['u1','koyomi-daily.ics'],['u2','kichijitsu.ics'],['u3','kyojitsu.ics'],['u4','tozan.ics']].forEach(([i,f])=>document.getElementById(i).textContent=b+f)</script>
-</body></html>
+
+<section class="card" data-file="koyomi-daily.ics">
+<h2>おかぴー暦（毎日）</h2>
+<p>毎日の六曜と、🌱⛰🙈のしるし。タップすると「その日に向いていること」も見られます。</p>
+<div class="btns"></div>
+</section>
+
+<section class="card" data-file="kichijitsu.ics">
+<h2>🌱 はじめ日</h2>
+<p>新しいことを始めるのにいい日。天赦日・一粒万倍日なども入っています。</p>
+<div class="btns"></div>
+</section>
+
+<section class="card" data-file="tozan.ics">
+<h2>⛰ 山日和</h2>
+<p>暦の上で山に行くのにいい日と、毎月の休日のおすすめ。</p>
+<div class="btns"></div>
+</section>
+
+<section class="card" data-file="kyojitsu.ics">
+<h2>🙈 あちゃー日</h2>
+<p>ちょっと気をつけたい日（不成就日・受死日・十死日）。大事な契約やスタートは別の日に。</p>
+<div class="btns"></div>
+</section>
+
+<details>
+<summary>うまく登録できないとき</summary>
+<p>PCのGoogleカレンダーで「他のカレンダー」の＋ →「URLで追加」を選び、下のURLを貼り付けてください。追加したあと、スマホのアプリにも自動で表示されます（反映まで少し時間がかかることがあります）。</p>
+<p id="urls"></p>
+</details>
+
+<footer>
+🌱⛰の判定は、伝統的な暦注をもとにした「おかぴーオリジナル判定」です。山に行く日は天気予報をいちばんに。<br>
+毎月自動で更新されます。presented by おかぴー
+</footer>
+</main>
+<script>
+(function(){
+  var base = location.href.replace(/[?#].*$/,'').replace(/index\.html$/,'');
+  if (!/\/$/.test(base)) base += '/';
+  var host = base.replace(/^https?:\/\//,'');
+  var list = [];
+  document.querySelectorAll('.card').forEach(function(card){
+    var f = card.getAttribute('data-file');
+    var webcal = 'webcal://' + host + f;
+    var g = 'https://calendar.google.com/calendar/render?cid=' + encodeURIComponent(webcal);
+    card.querySelector('.btns').innerHTML =
+      '<a class="g" href="' + g + '" target="_blank" rel="noopener">Googleカレンダーに追加</a>' +
+      '<a class="i" href="' + webcal + '">iPhoneのカレンダーに追加</a>';
+    list.push('<code>' + base + f + '</code>');
+  });
+  document.getElementById('urls').innerHTML = list.join('<br>');
+})();
+</script>
+</body>
+</html>
