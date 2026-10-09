@@ -1,0 +1,12 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>暦カレンダー</title>
+<style>body{font-family:system-ui,sans-serif;max-width:640px;margin:2rem auto;padding:0 16px;line-height:1.7;color:#222;background:#fff}code{background:#f3f3f3;padding:2px 6px;border-radius:4px;word-break:break-all}li{margin:.6rem 0}</style></head><body>
+<h1>暦カレンダー</h1>
+<p>Googleカレンダー（ブラウザ版）の「他のカレンダー」の＋から「URLで追加」を選び、下のURLを1つずつ貼り付けてください。毎月自動で更新されます。</p>
+<ul>
+<li>暦（毎日）六曜・十二直・登山/新しいことの◎○△×<br><code id="u1"></code></li>
+<li>吉日 天赦日・一粒万倍日・寅の日・巳の日など<br><code id="u2"></code></li>
+<li>凶日 不成就日・受死日・十死日・三隣亡<br><code id="u3"></code></li>
+<li>登山日和 ◎の日と各月の休日ベスト<br><code id="u4"></code></li>
+</ul>
+<script>const b=location.href.replace(/index\.html$/,'').replace(/\/?$/,'/');[['u1','koyomi-daily.ics'],['u2','kichijitsu.ics'],['u3','kyojitsu.ics'],['u4','tozan.ics']].forEach(([i,f])=>document.getElementById(i).textContent=b+f)</script>
+</body></html>
