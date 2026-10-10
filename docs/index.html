@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>おかぴー暦</title>
-<meta name="description" content="はじめ日・山日和・あちゃー日がひと目でわかる、Googleカレンダー／iPhoneカレンダー用の無料の暦">
+<title>毎日安心カレンダー</title>
+<meta name="description" content="始めるのにいい日・登山にいい日・慎重にしたい日がひと目でわかる、Googleカレンダー／iPhoneカレンダー用の無料カレンダー">
 <style>
 :root{--bg:#fffaf3;--card:#fff;--ink:#2b2622;--sub:#7a6f66;--line:#efe4d6;--accent:#e9762b;--accent-ink:#fff;--btn2:#f3ece3;--btn2-ink:#2b2622}
 @media (prefers-color-scheme:dark){:root{--bg:#1d1a17;--card:#27231f;--ink:#f3ece3;--sub:#b9ad9f;--line:#3a342e;--btn2:#3a342e;--btn2-ink:#f3ece3}}
@@ -26,39 +26,49 @@ details{margin-top:28px;color:var(--sub);font-size:14px}
 summary{cursor:pointer;color:var(--ink)}
 code{word-break:break-all;font-size:12px}
 footer{margin-top:32px;color:var(--sub);font-size:13px}
+.about{margin-top:28px}
+.about h2{font-size:19px;margin:0 0 8px}
+.about p{margin:0 0 10px}
 </style>
 </head>
 <body>
 <main>
-<h1>おかぴー暦</h1>
-<p class="lead">「いつ始める？」「いつ山行く？」「この日だいじょうぶ？」が、いつものカレンダーでひと目でわかる無料の暦です。ボタンを押すだけで登録できます。</p>
+<h1>毎日安心カレンダー</h1>
+<p class="lead">「いつ始める？」「いつ山行く？」「この日だいじょうぶ？」が、いつものカレンダーでひと目でわかる無料のカレンダーです。ボタンを押すだけで登録できます。</p>
 
 <ul class="legend">
-<li>🌱 はじめ日</li><li>⛰ 山日和</li><li>🙈 あちゃー日</li><li>👑 最強開運日</li>
+<li>暦</li><li>Chance!!</li><li>登山日和⛰️</li><li>慎重に</li>
 </ul>
 
 <section class="card" data-file="koyomi-daily.ics">
-<h2>おかぴー暦（毎日）</h2>
-<p>毎日の六曜と、🌱⛰🙈のしるし。タップすると「その日に向いていること」も見られます。</p>
+<h2>暦</h2>
+<p>毎日の六曜（大安・仏滅など）。タップすると、その日に向いていること・向いていないことがわかります。</p>
 <div class="btns"></div>
 </section>
 
 <section class="card" data-file="kichijitsu.ics">
-<h2>🌱 はじめ日</h2>
-<p>新しいことを始めるのにいい日。天赦日・一粒万倍日なども入っています。</p>
+<h2>Chance!!</h2>
+<p>新しいことを始めるのにいい日。天赦日・一粒万倍日など、昔から「始めるといい」とされる日です。</p>
 <div class="btns"></div>
 </section>
 
 <section class="card" data-file="tozan.ics">
-<h2>⛰ 山日和</h2>
+<h2>登山日和⛰️</h2>
 <p>暦の上で山に行くのにいい日と、毎月の休日のおすすめ。</p>
 <div class="btns"></div>
 </section>
 
 <section class="card" data-file="kyojitsu.ics">
-<h2>🙈 あちゃー日</h2>
-<p>ちょっと気をつけたい日（不成就日・受死日・十死日）。大事な契約やスタートは別の日に。</p>
+<h2>慎重に</h2>
+<p>大事なことは避けたい日（不成就日・受死日・十死日）。契約やスタートは別の日にずらすと安心です。</p>
 <div class="btns"></div>
+</section>
+
+<section class="about">
+<h2>暦（こよみ）ってなに？</h2>
+<p>昔の日本人が使っていた「日の天気予報」のようなものです。月の満ち欠けと太陽の動きから、その日が「何かを始めるのに向く日」か「控えめにしたほうがいい日」かを決めていました。</p>
+<p>大安や仏滅もそのひとつで、今でも結婚式やお店のオープン、引っ越しの日取りに使われています。科学で運が変わるわけではありませんが、何百年も大事にされてきた縁起の目安です。</p>
+<p>迷ったときに背中を押してくれる「きっかけ」として、気軽に使ってください。</p>
 </section>
 
 <details>
@@ -68,8 +78,8 @@ footer{margin-top:32px;color:var(--sub);font-size:13px}
 </details>
 
 <footer>
-🌱⛰の判定は、伝統的な暦注をもとにした「おかぴーオリジナル判定」です。山に行く日は天気予報をいちばんに。<br>
-毎月自動で更新されます。presented by おかぴー
+「Chance!!」「登山日和」は、昔からの暦をもとにした毎日安心カレンダー独自の判定です。山に行く日は天気予報をいちばんに。<br>
+毎月自動で更新されます。
 </footer>
 </main>
 <script>

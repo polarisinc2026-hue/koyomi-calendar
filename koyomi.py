@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-おかぴー暦：日本の暦注カレンダー生成スクリプト（Googleカレンダー取り込み用 .ics）
+毎日安心カレンダー：日本の暦注カレンダー生成スクリプト（Googleカレンダー取り込み用 .ics）
 - 旧暦（六曜・不成就日）と二十四節気（節月：一粒万倍日・十二直など）を天文計算で求める
 - 使い方: python3 koyomi.py [開始日] [終了日] [出力先]
   （引数なしなら「先月1日〜2年後の年末」を作る。GitHub Actionsが毎月これを実行）
@@ -197,7 +197,7 @@ def mountain_score(info):
     if c in ("破", "定", "閉"): add(-1, f"{c}(旅行に不向き)")
     r = info["rokuyo"]
     if r == "大安": add(1, "大安")
-    if r == "先勝": add(1, "先勝(午前吉＝早朝出発と相性◎)")
+    if r == "先勝": add(1, "先勝(午前吉＝早朝出発と相性よし)")
     if r in ("仏滅", "赤口"): add(-1, r)
     if "受死日" in info["kyo"]: add(-2, "受死日")
     if "十死日" in info["kyo"]: add(-2, "十死日")
@@ -244,7 +244,7 @@ def fold(line):
     return "\r\n".join(out)
 
 def ics(name, desc, events):
-    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Okapi//Koyomi//JA", "CALSCALE:GREGORIAN",
+    lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//MainichiAnshin//Koyomi//JA", "CALSCALE:GREGORIAN",
              "METHOD:PUBLISH", f"X-WR-CALNAME:{esc(name)}", f"X-WR-CALDESC:{esc(desc)}", "X-WR-TIMEZONE:Asia/Tokyo"]
     stamp = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
     for uid, date, title, body in events:
@@ -292,13 +292,7 @@ def generate(start, end, outdir="."):
         lm, leap, ld = inf["lunar"]
         cmean, cgood, cbad = CHOKU_INFO[inf["choku"]]
         acha = [x for x in ACHA if x in inf["kyo"]]
-        icons = ""
-        if "天赦日" in inf["kichi"] and "一粒万倍日" in inf["kichi"]: icons += "👑"
-        if inf["s"] == "◎": icons += "🌱"
-        if inf["m"] == "◎": icons += "⛰"
-        if acha: icons += KYO_MARK[acha[0]]
-        title = inf["rokuyo"] + (f" {icons}" if icons else "")
-        if inf["sekki"]: title += f"　{inf['sekki']}"
+        title = inf["rokuyo"] + (f"　{inf['sekki']}" if inf["sekki"] else "")
         body = [
             f"旧暦 {'閏' if leap else ''}{lm}月{ld}日／{inf['kanshi']}の日" + ("／土用" if inf["doyo"] else ""),
             "",
@@ -308,24 +302,23 @@ def generate(start, end, outdir="."):
             f"　向いていない：{cbad}",
         ]
         if inf["kichi"]:
-            body += ["", "■吉日"] + [f"　{KICHI_MARK[x]}{x} … {KICHI_INFO[x]}" for x in inf["kichi"]]
+            body += ["", "■吉日"] + [f"　{x} … {KICHI_INFO[x]}" for x in inf["kichi"]]
         if inf["kyo"]:
-            body += ["", "■凶日"] + [f"　{KYO_MARK[x]}{x} … {KYO_INFO[x]}" for x in inf["kyo"]]
-        body += ["", f"⛰登山 {inf['m']}（{ms:+d}）: " + ("、".join(mwhy) or "特記なし"),
-                 f"🌱新しいこと {inf['s']}（{ss:+d}）: " + ("、".join(swhy) or "特記なし"),
-                 "", "🌱=はじめ日 ⛰=山日和 🙈⚠️🤦=あちゃー日 👑=最強開運日",
-                 "◎=おすすめ ○=良い △=普通 ×=避けたい（おかぴーオリジナル判定）"]
+            body += ["", "■凶日"] + [f"　{x} … {KYO_INFO[x]}" for x in inf["kyo"]]
+        body += ["", f"■登山 {inf['m']}（{ms:+d}）: " + ("、".join(mwhy) or "特記なし"),
+                 f"■新しいこと {inf['s']}（{ss:+d}）: " + ("、".join(swhy) or "特記なし"),
+                 "", "◎=おすすめ ○=良い △=普通 ×=避けたい（毎日安心カレンダー独自の判定）"]
         body = "\n".join(body)
         daily.append((f"d{d:%Y%m%d}", d, title, body))
 
         big = [x for x in ("天赦日", "一粒万倍日") if x in inf["kichi"]]
         if inf["s"] == "◎" or (big and not acha):
-            why = [KICHI_MARK[x] + x for x in MAIN_KICHI if x in inf["kichi"]][:2]
+            why = [x for x in MAIN_KICHI if x in inf["kichi"]][:2]
             if inf["rokuyo"] == "大安": why.append("大安")
-            head = "👑最強開運日" if len(big) == 2 else "🌱はじめ日"
+            head = "Chance!!👑最強開運日" if len(big) == 2 else "Chance!!"
             good.append((f"g{d:%Y%m%d}", d, head + (f"（{'・'.join(why)}）" if why else ""), body))
         if acha:
-            bad.append((f"b{d:%Y%m%d}", d, "あちゃー日 " + " ".join(KYO_MARK[x] + x for x in acha), body))
+            bad.append((f"b{d:%Y%m%d}", d, "慎重に " + " ".join(KYO_MARK[x] + x for x in acha), body))
 
     # 登山カレンダー：◎の日すべて＋各月の「週末・祝日ベスト」
     by_month = {}
@@ -336,20 +329,20 @@ def generate(start, end, outdir="."):
             if inf["m"] == "◎":
                 d = inf["date"]
                 off = d.weekday() >= 5 or inf["holiday"]
-                mount.append((f"m{d:%Y%m%d}", d, f"⛰山日和{'（休日）' if off else ''}", daily[infos.index(inf)][3]))
+                mount.append((f"m{d:%Y%m%d}", d, f"登山日和⛰️{'（休日）' if off else ''}", daily[infos.index(inf)][3]))
         offs = [x for x in lst if x["date"].weekday() >= 5 or x["holiday"]]
         if offs:
             best = max(offs, key=lambda x: (x["ms"], x["ss"]))
             if best["m"] != "◎" and best["ms"] >= 0:
                 d = best["date"]
-                mount.append((f"m{d:%Y%m%d}", d, f"⛰今月の休日の山日和（{best['m']}）", daily[infos.index(best)][3]))
+                mount.append((f"m{d:%Y%m%d}", d, f"今月の休日の登山日和⛰️（{best['m']}）", daily[infos.index(best)][3]))
     mount.sort(key=lambda e: e[1])
 
     files = {
-        "koyomi-daily.ics": ("おかぴー暦", "毎日の六曜と 🌱はじめ日 ⛰山日和 🙈あちゃー日 のしるし", daily),
-        "kichijitsu.ics": ("おかぴー はじめ日", "新しいことを始めるのにいい日（天赦日・一粒万倍日など）", good),
-        "kyojitsu.ics": ("おかぴー あちゃー日", "気をつける日（不成就日・受死日・十死日）", bad),
-        "tozan.ics": ("おかぴー 山日和", "暦の上で山に行くのにいい日と、毎月の休日のおすすめ", mount),
+        "koyomi-daily.ics": ("暦", "毎日安心カレンダー：毎日の六曜。タップすると向いていること・いないことがわかります", daily),
+        "kichijitsu.ics": ("Chance!!", "毎日安心カレンダー：新しいことを始めるのにいい日（天赦日・一粒万倍日など）", good),
+        "kyojitsu.ics": ("慎重に", "毎日安心カレンダー：大事なことは避けたい日（不成就日・受死日・十死日）", bad),
+        "tozan.ics": ("登山日和⛰️", "毎日安心カレンダー：山に行くのにいい日と、毎月の休日のおすすめ", mount),
     }
     for fn, (name, desc, ev) in files.items():
         with open(f"{outdir}/{fn}", "w", encoding="utf-8", newline="") as f:
