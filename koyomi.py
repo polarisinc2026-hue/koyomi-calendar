@@ -318,7 +318,7 @@ def generate(start, end, outdir="."):
             head = "Chance!!👑最強開運日" if len(big) == 2 else "Chance!!"
             good.append((f"g{d:%Y%m%d}", d, head + (f"（{'・'.join(why)}）" if why else ""), body))
         if acha:
-            bad.append((f"b{d:%Y%m%d}", d, "慎重に " + " ".join(KYO_MARK[x] + x for x in acha), body))
+            bad.append((f"b{d:%Y%m%d}", d, "慎重に", "慎重にしたい理由：" + "・".join(acha) + "\n\n" + body))
 
     # 登山カレンダー：◎の日すべて＋各月の「週末・祝日ベスト」
     by_month = {}
